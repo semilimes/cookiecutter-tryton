@@ -1,22 +1,23 @@
 #!/usr/bin/env python
 import re
 import os
-import time
 import sys
-import unittest
-import ConfigParser
 from setuptools import setup, Command
+try:
+    from configparser import ConfigParser
+except ImportError:
+    from ConfigParser import ConfigParser
 
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 
-class SQLiteTest(Command):
+class Publish(Command):
     """
-    Run the tests on SQLite
+    Publish package in local pypi
     """
-    description = "Run tests on SQLite"
+    description = "Publish package in local pypi"
 
     user_options = []
 
@@ -27,51 +28,11 @@ class SQLiteTest(Command):
         pass
 
     def run(self):
-        if self.distribution.tests_require:
-            self.distribution.fetch_build_eggs(self.distribution.tests_require)
+        os.system('python setup.py sdist upload -r internal')
+        sys.exit(0)
 
-        os.environ['TRYTOND_DATABASE_URI'] = 'sqlite://'
-        os.environ['DB_NAME'] = ':memory:'
-
-        from tests import suite
-        test_result = unittest.TextTestRunner(verbosity=3).run(suite())
-
-        if test_result.wasSuccessful():
-            sys.exit(0)
-        sys.exit(-1)
-
-
-class PostgresTest(Command):
-    """
-    Run the tests on Postgres.
-    """
-    description = "Run tests on Postgresql"
-
-    user_options = []
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        if self.distribution.tests_require:
-            self.distribution.fetch_build_eggs(self.distribution.tests_require)
-
-        os.environ['TRYTOND_DATABASE_URI'] = 'postgresql://'
-        os.environ['DB_NAME'] = 'test_' + str(int(time.time()))
-
-        from tests import suite
-        test_result = unittest.TextTestRunner(verbosity=3).run(suite())
-
-        if test_result.wasSuccessful():
-            sys.exit(0)
-        sys.exit(-1)
-
-
-config = ConfigParser.ConfigParser()
-config.readfp(open('tryton.cfg'))
+config = ConfigParser()
+config.read_file(open('tryton.cfg'))
 info = dict(config.items('tryton'))
 for key in ('depends', 'extras_depend', 'xml'):
     if key in info:
@@ -100,6 +61,7 @@ requires.append(
         major_version, minor_version, major_version, minor_version + 1
     )
 )
+
 setup(
     name='%s_%s' % (PREFIX, MODULE),
     version=info.get('version', '0.0.1'),
@@ -140,7 +102,6 @@ setup(
     test_suite='tests',
     test_loader='trytond.test_loader:Loader',
     cmdclass={
-        'test': SQLiteTest,
-        'test_on_postgres': PostgresTest,
+        'publish': Publish,
     }
 )

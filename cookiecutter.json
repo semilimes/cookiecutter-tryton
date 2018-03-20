@@ -3,7 +3,7 @@
     "email": "info@semilimes.com",
     "website": "https://www.semilimes.com/",
     "module_name": "module_name",
-    "module_prefix": "sl",
+    "module_prefix": "trytond",
     "description": "",
     "licence": "BSD",
     "repo_name": "module-name",
