@@ -25,7 +25,7 @@ How to generate tryton module boilerplate
 
 To generate a tryton module::
 
-    cookiecutter https://github.com/fulfilio/cookiecutter-tryton.git
+    cookiecutter https://github.com/semilimes/cookiecutter-tryton.git
 
 You will be prompted to enter a bunch of project config values. (These are defined in the project’s cookiecutter.json).
 
